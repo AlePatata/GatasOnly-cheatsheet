@@ -3,6 +3,9 @@
 
 using namespace std;
 
+typedef long long ll;
+typedef pair<ll,int> pli;
+
 const int INF = 1e9;
 
 /* BFS Busqueda a lo ancho
@@ -39,6 +42,31 @@ int BFS(int begin) {
     }
 }
 
+/* Dijkstra
+Dado un grafo con pesos y un nodo inicial, encuentra el camino más corto 
+a cada otro nodo
+*/
+vector<ll> Dijkstra(pli start) {
+    priority_queue<pli, vector<pli>, greater<pli> > pq;
+    vector<ll> dist(n, INF);
+    dist[start.second] = 0;
+    pq.push(start);
+    while(!pq.empty()) {
+        auto [l, u] = pq.top();    
+        pq.pop();
+        if (dist[u] < l) 
+            continue;
+
+        for(auto [w, v] : graph[u]) {
+            if(dist[v] > dist[u] + w){
+                dist[v] = dist[u] + w;
+                pq.push({dist[v], v});
+            }
+        }
+    }
+    return dist;
+}
+
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(NULL);
 
@@ -72,5 +100,46 @@ int main() {
         cout << endl;
     }
 
+    // Camino más corto de un nodo a otro pasando por una cierta ruta
+    // Dado un vector de ciertos nodos interesantes y su vector de demas nodos mas
+    // cercanos asociados distancias[u]
+    sort(ruta.begin()+1,ruta.end());
+    do {
+        ll lmin = 0;
+        for (int i = 0; i<ruta.size()-1; i++) {
+            int u = ruta[i];
+            lmin += distancias[u][ruta[i+1]];
+        }
+        if (lmin < min) {
+            min = lmin;
+           
+        }
+    } while ( next_permutation(ruta.begin()+1,ruta.end()) );
+
+
+    // Coloreado de un grafo - Bipartición
+    vector<int> team(n,-1), conex(n,0);
+
+    bool bip = true;
+    for (int i = 0; i < n; ++i) {
+        int start = i;
+        if (!conex[start]) {
+            team[start] = 1;
+            q.push(start);
+            conex[start] = 1;
+            while(!q.empty() and bip) {
+                int u = q.front();
+                q.pop();
+                for(int v : graph[u]){
+                    if (team[v] == -1) team[v] = 1^team[u];
+                    else if (team[v] == team[u]) bip = false; 
+                    if (!conex[v]){
+                        conex[v] = 1;
+                        q.push(v);
+                    }
+                }
+            }
+        }
+    }
     return 0;
 }

@@ -117,7 +117,28 @@ int main() {
     } while ( next_permutation(ruta.begin()+1,ruta.end()) );
 
 
-    // Coloreado de un grafo - Bipartición
+// FUDGE ALGORITHM
+//Se inicializa el vector de distancias con la diagonal en 0 y dist[i][j] = peso del camino i-j
+    for(int i = 0; i<n; i++)
+        dist[i][i] = 0;
+    for(int i = 0; i < m; i++){
+        int u, v; 
+        ll w;
+        cin >> u >> v >> w;
+        u--; v--;
+        dist[u][v] = min(w, dist[u][v]);
+        dist[v][u] = min(w, dist[v][u]);
+    }
+    // Para un trio de nodos i,j,k el camino mas corto de i a j es
+    // el minimo entre el camino directo de i a j o darnos una vuelta
+    // mas larga pasando por k (camino de i a k + camino de k a j)
+    for(int k = 0; k < n; k++)
+        for(int i = 0; i < n; i++)
+            for(int j = 0; j < n; j++) 
+                dist[i][j] = min(dist[i][j],dist[i][k]+dist[k][j]);
+
+
+// Coloreado de un grafo - Bipartición
     vector<int> team(n,-1), conex(n,0);
 
     bool bip = true;
